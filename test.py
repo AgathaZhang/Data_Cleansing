@@ -29,16 +29,16 @@ from mpl_toolkits.mplot3d import Axes3D
 from sklearn.decomposition import PCA
 import numpy as np
 
-    X = np.loadtxt("exp4/normal.txt", delimiter=",", dtype=np.float32)
-    pca = PCA(n_components=2)
-    newX = pca.fit_transform(X)
-    print(pca.explained_variance_ratio_)
-    xs = newX[:, 0]
-    ys = newX[:, 1]
-    plt.xlabel('component_x')
-    plt.ylabel('component_y')
-    # 沿x轴方向渐变颜色
-    plt.scatter(xs, ys, c=xs)
+    # X = np.loadtxt("exp4/normal.txt", delimiter=",", dtype=np.float32)
+    # pca = PCA(n_components=2)
+    # newX = pca.fit_transform(X)
+    # print(pca.explained_variance_ratio_)
+    # xs = newX[:, 0]
+    # ys = newX[:, 1]
+    # plt.xlabel('component_x')
+    # plt.ylabel('component_y')
+    # # 沿x轴方向渐变颜色
+    # plt.scatter(xs, ys, c=xs)
 
 # 设置坐标轴范围
 # plt.xlim((0, 360))
@@ -52,3 +52,23 @@ import numpy as np
 # plt.ylabel('component_y')
 # plt.scatter(item.x, item.y, item.z)
 
+# def number_to_string_and_join(numbers):
+#
+#
+#
+# numbers_list = [1, 2, 3, 4, 5]
+# result_string = number_to_string_and_join(numbers_list)
+# print("连接后的字符串:", result_string)
+
+
+# def outer_function(static_variable=[0]):
+#     static_variable[0] += 1
+#     print(static_variable[0])
+#
+# outer_function()
+# outer_function()
+# pass
+
+# str_numbers = [str(num) for num in numbers]
+# joined_string = ''.join(str_numbers)
+# return joined_string
