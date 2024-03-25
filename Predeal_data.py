@@ -16,8 +16,14 @@ data = bytes()  # 用于存放循环输入测试数据
 data_scale = [8, 8]  # 需要数据清洗的规模
 current_completion_flag = False  # 标志一次循环是否做完
 path = "./data_of_web/"  # 提供绝对路径的字符串
+path = "./recalibration/"  # 提供绝对路径的字符串
+
 file_type = ".DAT"  # 批处理的文件后缀名
 size_of_each_grid = 0.4  # 每个方格的边长
+count = -1               # 用于auto_input循环
+
+x_draw = []
+y_draw = []
 
 
 def filter_ascii(data):
@@ -86,21 +92,39 @@ def get_SN(data_scale=[8, 8]):
 
 
 def auto_input(sn):
-    count = -1  # 用于文件处理遍历计数
-    global path, file_type, current_completion_flag
+    # count = -1  # 用于文件处理遍历计数
+    # global path, file_type, current_completion_flag
+    #
+    # def inner():  # inner()起局部静态变量的作用
+    #     nonlocal count  # 声明 count 变量来自外部函数
+    #     count += 1
+    #     return count
+    # def counter():
+    #     # 在闭包内部定义一个函数属性
+    #     if not hasattr(counter, "count"):
+    #         counter.count = -1
+    #
+    #     counter.count += 1
+    #     return counter.count
+    # class counter:
+    #     count = -1
+    #
+    #     @property
+    #     def cc(self):
+    #        self.count = self.count + 1
+    #
+    # counter.cc
+    # ct = counter.count
+    global count
+    count = count + 1
 
-    def inner():  # inner()起局部静态变量的作用
-        nonlocal count  # 声明 count 变量来自外部函数
-        count += 1
-        return count
-
-    inner()
+    global current_completion_flag
     if current_completion_flag is False:
-        path = path + sn[count] + file_type
+        path_handle = path + sn[count] + file_type
         current_completion_flag = True
     # with open(path, 'rb') as f:  # 自动close
-    f: BinaryIO = open(path, 'rb')
-    return f, sn[count]     # TODO 不关闭文件还能第二次遍历吗
+    f: BinaryIO = open(path_handle, 'rb')
+    return f, sn[count]  # TODO 不关闭文件还能第二次遍历吗
 
 
 def draw(item):
@@ -125,9 +149,9 @@ def draw(item):
     return
 
 
-def loop():
+def loop(sn):
     """循环处理每个样本"""
-    f, sn = auto_input(get_SN())
+    f, sn = auto_input(sn)
     global current_completion_flag
     data = f.read()
     filtered_bytes = filter_ascii(data)  # 去空格加截断标识符
@@ -138,7 +162,11 @@ def loop():
     item.load_data(sec_bottle)
     one = point_grid(item, sn='00')
     diif_x, diff_y, diff_distance = one.abs_diff()
-    draw(item)
+    global x_draw
+    global y_draw
+    x_draw.append(one._mean_x)
+    y_draw.append(one._mean_y)
+    # draw(item)
     current_completion_flag = False
     pass
     return
@@ -171,159 +199,159 @@ class separate_data:
         got_m_x_y_z_complete = []
         lenth_total = len(lists)
         for i in range(lenth_total):  # 遍历每一大条
-         if len(lists[i]) > 40:       # 串长不足40 说明存在清洗丢失 就不分解此串了
-            buff_mxyz = []
-            dealstr = lists[i]
-            # if len(lists[i]) < 30:
-            #     pass
-            for j in range(len(lists[i]) - 3):  # 遍历每一条中的每一个字符 # 这里减去一个常数是为了保证裕量不会超出 dealstr本身
-                if dealstr[j] == 'm':
-                    buff = []
-                    i = 1
-                    while i < 10:  # TODO 清洗的时候要注意推演的位数 这里用字符匹配机制比较保险
-                        if dealstr[j + i] == "x":
-                            break
-                        else:
-                            buff.append(int(dealstr[j + i]))
-                            i = i + 1
-                    num_str = ''.join(str(num) for num in buff)
-                    result = int(num_str)
-                    buff_mxyz.append(result)
-                    self.check_num2.append(result)
-                    buff = []
-                    i = 1
-                elif dealstr[j] == 'x':
-                    small_point = 0  # 小数点在第几位
-                    flag_point = False  # 是否小数
-                    flag = False  # 负数标志
-                    buff = []
-                    i = 2
-                    while i < 10:  # 字符匹配机制判断第三位是否为负
-                        if dealstr[j + i] == "-":
-                            flag = True
-                            i = i + 1
-                            continue
-                        if dealstr[j + i] == ".":
-                            flag_point = True
-                            small_point = i
-                            i = i + 1
-                        elif dealstr[j + i] == "y":
-                            break
-                        else:
-                            buff.append(int(dealstr[j + i]))
-                            i = i + 1
-                    org_len = len(buff)
-                    num_str = ''.join(str(num) for num in buff)
-                    result = int(num_str)
-                    if flag_point == True:
-                        # if flag == True:
-                        #     mi = org_len - 1
-                        # else:
-                        #     mi = org_len
-                        mi = org_len - 1
-                        result = result * (10 ** (-mi))
-                    if flag == True:
-                        result = result * (-1)
-                    flag = False
-                    flag_point = False
-                    buff_mxyz.append(result)
-                    self.x2.append(result)
-                    buff = []
-                    i = 2
-                elif dealstr[j] == 'y':
-                    small_point = 0  # 小数点在第几位
-                    flag_point = False  # 是否小数
-                    flag = False  # 负数标志
-                    buff = []
-                    i = 2
-                    while i < 10:  # 字符匹配机制判断第三位是否为负
-                        if dealstr[j + i] == "-":
-                            flag = True
-                            i = i + 1
-                            continue
-                        if dealstr[j + i] == ".":
-                            flag_point = True
-                            small_point = i
-                            i = i + 1
-                            continue
-                        elif dealstr[j + i] == "z":
-                            break
-                        else:
-                            buff.append(int(dealstr[j + i]))
-                            i = i + 1
-                    org_len = len(buff)
-                    num_str = ''.join(str(num) for num in buff)
-                    result = int(num_str)
-                    if flag_point == True:
-                        # if flag == True:
-                        #     mi = org_len - 1
-                        # else:
-                        #     mi = org_len
-                        mi = org_len - 1
-                        result = result * (10 ** (-mi))
-                    if flag == True:
-                        result = result * (-1)
-                    flag = False
-                    flag_point = False
-                    buff_mxyz.append(result)
-                    self.y2.append(result)
-                    buff = []
-                    i = 2
-                elif dealstr[j] == 'z':
-                    small_point = 0  # 小数点在第几位
-                    flag_point = False  # 是否小数
-                    flag = False  # 负数标志
-                    buff = []
-                    i = 2
-                    while i < 10:  # 字符匹配机制判断第三位是否为负
-                        if dealstr[j + i] == "-":
-                            flag = True
-                            i = i + 1
-                            continue
-                        if dealstr[j + i] == ".":
-                            flag_point = True
-                            small_point = i
-                            i = i + 1
-                            continue
-                        elif dealstr[j + i] == "%":
-                            break
-                        elif dealstr[j + i] != "%" and dealstr[j + i] != "." and dealstr[j + i] != "-" and dealstr[
-                            j + i] != "0" \
-                                and dealstr[j + i] != "1" and dealstr[j + i] != "2" and dealstr[j + i] != "3" and \
-                                dealstr[j + i] != "4" \
-                                and dealstr[j + i] != "5" and dealstr[j + i] != "6" and dealstr[j + i] != "7" and \
-                                dealstr[j + i] != "8" \
-                                and dealstr[j + i] != "9" and dealstr[j + i] != "_":
-                            pass
-                        else:
-                            buff.append(int(dealstr[j + i]))
-                            i = i + 1
-                    org_len = len(buff)
-                    num_str = ''.join(str(num) for num in buff)
-                    result = int(num_str)
-                    if flag_point == True:
-                        # if flag == True:
-                        #     mi = org_len - 1
-                        # else:
-                        #     mi = org_len - 1
-                        mi = org_len - 1
-                        result = result * (10 ** (-mi))
-                    if flag == True:
-                        result = result * (-1)
-                    flag = False
-                    flag_point = False
-                    buff_mxyz.append(result)
-                    self.z2.append(result)
-                    buff = []
-                    i = 2
-            if len(buff_mxyz) == 4:
-                self.check_num.append(buff_mxyz[0])
-                self.x.append(buff_mxyz[1])
-                self.y.append(buff_mxyz[2])
-                self.z.append(buff_mxyz[3])
-            else:
-                break
-                #     self.check_num
+            if len(lists[i]) > 40:  # 串长不足40 说明存在清洗丢失 就不分解此串了
+                buff_mxyz = []
+                dealstr = lists[i]
+                # if len(lists[i]) < 30:
+                #     pass
+                for j in range(len(lists[i]) - 3):  # 遍历每一条中的每一个字符 # 这里减去一个常数是为了保证裕量不会超出 dealstr本身
+                    if dealstr[j] == 'm':
+                        buff = []
+                        i = 1
+                        while i < 10:  # TODO 清洗的时候要注意推演的位数 这里用字符匹配机制比较保险
+                            if dealstr[j + i] == "x":
+                                break
+                            else:
+                                buff.append(int(dealstr[j + i]))
+                                i = i + 1
+                        num_str = ''.join(str(num) for num in buff)
+                        result = int(num_str)
+                        buff_mxyz.append(result)
+                        self.check_num2.append(result)
+                        buff = []
+                        i = 1
+                    elif dealstr[j] == 'x':
+                        small_point = 0  # 小数点在第几位
+                        flag_point = False  # 是否小数
+                        flag = False  # 负数标志
+                        buff = []
+                        i = 2
+                        while i < 10:  # 字符匹配机制判断第三位是否为负
+                            if dealstr[j + i] == "-":
+                                flag = True
+                                i = i + 1
+                                continue
+                            if dealstr[j + i] == ".":
+                                flag_point = True
+                                small_point = i
+                                i = i + 1
+                            elif dealstr[j + i] == "y":
+                                break
+                            else:
+                                buff.append(int(dealstr[j + i]))
+                                i = i + 1
+                        org_len = len(buff)
+                        num_str = ''.join(str(num) for num in buff)
+                        result = int(num_str)
+                        if flag_point == True:
+                            # if flag == True:
+                            #     mi = org_len - 1
+                            # else:
+                            #     mi = org_len
+                            mi = org_len - 1
+                            result = result * (10 ** (-mi))
+                        if flag == True:
+                            result = result * (-1)
+                        flag = False
+                        flag_point = False
+                        buff_mxyz.append(result)
+                        self.x2.append(result)
+                        buff = []
+                        i = 2
+                    elif dealstr[j] == 'y':
+                        small_point = 0  # 小数点在第几位
+                        flag_point = False  # 是否小数
+                        flag = False  # 负数标志
+                        buff = []
+                        i = 2
+                        while i < 10:  # 字符匹配机制判断第三位是否为负
+                            if dealstr[j + i] == "-":
+                                flag = True
+                                i = i + 1
+                                continue
+                            if dealstr[j + i] == ".":
+                                flag_point = True
+                                small_point = i
+                                i = i + 1
+                                continue
+                            elif dealstr[j + i] == "z":
+                                break
+                            else:
+                                buff.append(int(dealstr[j + i]))
+                                i = i + 1
+                        org_len = len(buff)
+                        num_str = ''.join(str(num) for num in buff)
+                        result = int(num_str)
+                        if flag_point == True:
+                            # if flag == True:
+                            #     mi = org_len - 1
+                            # else:
+                            #     mi = org_len
+                            mi = org_len - 1
+                            result = result * (10 ** (-mi))
+                        if flag == True:
+                            result = result * (-1)
+                        flag = False
+                        flag_point = False
+                        buff_mxyz.append(result)
+                        self.y2.append(result)
+                        buff = []
+                        i = 2
+                    elif dealstr[j] == 'z':
+                        small_point = 0  # 小数点在第几位
+                        flag_point = False  # 是否小数
+                        flag = False  # 负数标志
+                        buff = []
+                        i = 2
+                        while i < 10:  # 字符匹配机制判断第三位是否为负
+                            if dealstr[j + i] == "-":
+                                flag = True
+                                i = i + 1
+                                continue
+                            if dealstr[j + i] == ".":
+                                flag_point = True
+                                small_point = i
+                                i = i + 1
+                                continue
+                            elif dealstr[j + i] == "%":
+                                break
+                            elif dealstr[j + i] != "%" and dealstr[j + i] != "." and dealstr[j + i] != "-" and dealstr[
+                                j + i] != "0" \
+                                    and dealstr[j + i] != "1" and dealstr[j + i] != "2" and dealstr[j + i] != "3" and \
+                                    dealstr[j + i] != "4" \
+                                    and dealstr[j + i] != "5" and dealstr[j + i] != "6" and dealstr[j + i] != "7" and \
+                                    dealstr[j + i] != "8" \
+                                    and dealstr[j + i] != "9" and dealstr[j + i] != "_":
+                                pass
+                            else:
+                                buff.append(int(dealstr[j + i]))
+                                i = i + 1
+                        org_len = len(buff)
+                        num_str = ''.join(str(num) for num in buff)
+                        result = int(num_str)
+                        if flag_point == True:
+                            # if flag == True:
+                            #     mi = org_len - 1
+                            # else:
+                            #     mi = org_len - 1
+                            mi = org_len - 1
+                            result = result * (10 ** (-mi))
+                        if flag == True:
+                            result = result * (-1)
+                        flag = False
+                        flag_point = False
+                        buff_mxyz.append(result)
+                        self.z2.append(result)
+                        buff = []
+                        i = 2
+                if len(buff_mxyz) == 4:
+                    self.check_num.append(buff_mxyz[0])
+                    self.x.append(buff_mxyz[1])
+                    self.y.append(buff_mxyz[2])
+                    self.z.append(buff_mxyz[3])
+                else:
+                    break
+                    #     self.check_num
         # self.make_dimen_right()
         return
 
@@ -339,8 +367,7 @@ class point_grid:
     _mean_x = 0
     _mean_y = 0
     _mean_z = 0
-    _calcu_sample = 3
-
+    _calcu_sample = 5
 
     posi_ID = []
     posi_real = []
@@ -353,16 +380,16 @@ class point_grid:
         self._check_num = group.check_num
         self._total = len(self._check_num)
         self.mean_each()
-        self.posi_ID.append(int(sn[0]))
+        self.posi_ID.append(int(sn[0]))             # sn只是用来计算推算真值坐标
         self.posi_ID.append(int(sn[1]))
         self.posi_real.append(self.posi_ID[0] * size_of_each_grid)
         self.posi_real.append(self.posi_ID[1] * size_of_each_grid)
-
+        self.posi_real_define = [1.2, 1.2]      # 分析单个点时手动设置的该点坐标
 
     def mean(self, lst):
         sum = 0
         for i in range(self._calcu_sample):
-            sum = sum + lst[i+20]
+            sum = sum + lst[i + 20]         # 丢掉前面20组数据
         return sum / self._calcu_sample
 
         # total = sum(lst)
@@ -377,11 +404,9 @@ class point_grid:
         self._mean_z = self.mean(self._z)
 
     def calcu_posi_mean(self):
-
         return
 
     def calcu_posi_real(self):
-
         return
 
     def abs_diff(self):
@@ -391,11 +416,9 @@ class point_grid:
         return diif_x, diff_y, diff_distance
 
     def error_range(self):
-
         return
 
     def long_time_diff(self):
-
         return
 
     def api_contour(self):
@@ -403,15 +426,27 @@ class point_grid:
 
         return  # posit_ID abs_diff
 
+    def abs_diff_define(self):
+        diif_x = self._mean_x - self.posi_real_define[0]
+        diff_y = self._mean_y - self.posi_real_define[1]
+        diff_distance = math.sqrt(diif_x ** 2 + diff_y ** 2)
+        return diif_x, diff_y, diff_distance
 
 
 if __name__ == '__main__':
     def main():
         # with open("./data_of_web/00.DAT", 'rb') as f:  # 单文件处理
-        for i in range(data_scale[0]*data_scale[1]):
-            loop()
+        # for i in range(data_scale[0]*data_scale[1]):
+        for i in range(5):
+            # loop(get_SN())
+            loop(['00', '01', '02', '03', '04'])
+        plt.plot(x_draw, x_draw, 'o', color='blue', label='Points')
+        plt.xlabel('x Axis')
+        plt.ylabel('y Axis')
+        plt.show()
 
-            # TODO 输出文件for 遍历到不同的文件中(
+
+            # TODO 输出文件for 遍历到不同的文件中
 
 
     # for i in range(data_scale[0]*data_scale[1]):
