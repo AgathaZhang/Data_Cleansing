@@ -3,27 +3,75 @@
     step3: final_wash
 """
 from typing import BinaryIO
-import matplotlib
 import math
-
-matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from sklearn.decomposition import PCA
+from matplotlib.patches import Circle
 import numpy as np
 
+# matplotlib.use('TkAgg')
+# from mpl_toolkits.mplot3d import Axes3D
+# from sklearn.decomposition import PCA
+
+"""初始化一些变量"""
 data = bytes()  # 用于存放循环输入测试数据
 data_scale = [8, 8]  # 需要数据清洗的规模
 current_completion_flag = False  # 标志一次循环是否做完
-path = "./data_of_web/"  # 提供绝对路径的字符串
-path = "./recalibration/"  # 提供绝对路径的字符串
-
 file_type = ".DAT"  # 批处理的文件后缀名
 size_of_each_grid = 0.4  # 每个方格的边长
-count = -1               # 用于auto_input循环
+count = -1  # 用于auto_input循环
+
+# path = "./data_of_web/"  # 提供绝对路径的字符串
+path = "./recalibration_anchor/"  # 提供绝对路径的字符串
+# path = "./only_reopen_anchor/"  # 提供绝对路径的字符串
+# path = "./long_time/"  # 提供绝对路径的字符串
 
 x_draw = []
 y_draw = []
+
+
+def get_SN(data_scale=[8, 8]):
+    """获取每个文件编号"""
+    sn = []
+    for i in range(data_scale[0]):
+        for j in range(data_scale[1]):
+            sn.append(str(i) + str(j))  # 提供遍历文件的编号
+    return sn
+
+
+def auto_input(sn):
+    # count = -1  # 用于文件处理遍历计数
+    # global path, file_type, current_completion_flag
+    #
+    # def inner():  # inner()起局部静态变量的作用
+    #     nonlocal count  # 声明 count 变量来自外部函数
+    #     count += 1
+    #     return count
+    # def counter():
+    #     # 在闭包内部定义一个函数属性
+    #     if not hasattr(counter, "count"):
+    #         counter.count = -1
+    #
+    #     counter.count += 1
+    #     return counter.count
+    # class counter:
+    #     count = -1
+    #
+    #     @property
+    #     def cc(self):
+    #        self.count = self.count + 1
+    #
+    # counter.cc
+    # ct = counter.count
+    global count
+    count = count + 1
+
+    global current_completion_flag
+    if current_completion_flag is False:
+        path_handle = path + sn[count] + file_type
+        current_completion_flag = True
+    # with open(path, 'rb') as f:  # 自动close
+    f: BinaryIO = open(path_handle, 'rb')
+    return f, sn[count]  # TODO 不关闭文件还能第二次遍历吗
 
 
 def filter_ascii(data):
@@ -82,117 +130,129 @@ def final_wash(bottle):
     return strgroup
 
 
-def get_SN(data_scale=[8, 8]):
-    """获取每个文件编号"""
-    sn = []
-    for i in range(data_scale[0]):
-        for j in range(data_scale[1]):
-            sn.append(str(i) + str(j))  # 提供遍历文件的编号
-    return sn
+def draw(group):
+    # 生成两组随机坐标和一个随机点
+    band = []
+    for temp in group:
+        x = temp._separate_data__x
+        y = temp._separate_data__y
+        points = [[x[i], y[i]] for i in range(len(x))]
+        array = np.array(points)
+        band.append(array)
 
+    # 绘制坐标点
+    plt.scatter(band[0][90:110, 0], band[0][90:110, 1], color='blue', label='Group 1')
+    plt.scatter(band[1][90:110, 0], band[1][90:110, 1], color='red', label='Group 2')
+    plt.scatter(band[2][90:110, 0], band[2][90:110, 1], color='#58ff70', label='Group 3')
+    plt.scatter(band[3][90:110, 0], band[3][90:110, 1], color='#ff7f60', label='Group 4')
+    plt.scatter(band[4][90:110, 0], band[4][90:110, 1], color='m', label='Group 5')
 
-def auto_input(sn):
-    # count = -1  # 用于文件处理遍历计数
-    # global path, file_type, current_completion_flag
-    #
-    # def inner():  # inner()起局部静态变量的作用
-    #     nonlocal count  # 声明 count 变量来自外部函数
-    #     count += 1
-    #     return count
-    # def counter():
-    #     # 在闭包内部定义一个函数属性
-    #     if not hasattr(counter, "count"):
-    #         counter.count = -1
-    #
-    #     counter.count += 1
-    #     return counter.count
-    # class counter:
-    #     count = -1
-    #
-    #     @property
-    #     def cc(self):
-    #        self.count = self.count + 1
-    #
-    # counter.cc
-    # ct = counter.count
-    global count
-    count = count + 1
+    # 绘制基站点
+    plt.scatter(1.2, 1, color='k', label='real_point')
+    if True:
+        center0 = np.mean(band[0][90:110], axis=0)
+        plt.scatter(center0[0], center0[1], color='blue', marker='x', label='Center 0')
 
-    global current_completion_flag
-    if current_completion_flag is False:
-        path_handle = path + sn[count] + file_type
-        current_completion_flag = True
-    # with open(path, 'rb') as f:  # 自动close
-    f: BinaryIO = open(path_handle, 'rb')
-    return f, sn[count]  # TODO 不关闭文件还能第二次遍历吗
+        center1 = np.mean(band[1][90:110], axis=0)
+        plt.scatter(center1[0], center1[1], color='red', marker='x', label='Center 1')
 
+        center2 = np.mean(band[2][90:110], axis=0)
+        plt.scatter(center2[0], center2[1], color='#58ff70', marker='x', label='Center 2')
 
-def draw(item):
-    x = item.x
-    y = item.y
-    # --------------------------------------------------------------- # 二维网图
-    # 绘制 x-y 点图
-    # plt.figure(figsize=(8, 6))  # 设置图形的大小
-    plt.plot(x, y, 'o', color='blue', label='Points')
-    plt.xlabel('x Axis')
-    plt.ylabel('y Axis')
+        center3 = np.mean(band[3][90:110], axis=0)
+        plt.scatter(center3[0], center3[1], color='#ff7f60', marker='x', label='Center 3')
 
-    # 设置坐标轴刻度
-    # plt.xticks(my_x_ticks)
-    # plt.yticks(my_y_ticks)
-    # surf = ax1.plot_wireframe(X, Y, Z)
+        center4 = np.mean(band[4][90:110], axis=0)
+        plt.scatter(center4[0], center4[1], color='m', marker='x', label='Center 4')
 
+    if True:
+        # 计算并绘制第一组外切圆
+        radius0 = max(np.linalg.norm(point - center0) for point in band[0][90:110])
+        circle0 = Circle(center0, radius0, fill=False, color='blue', linestyle='--',
+                         label=f'Bounding Circle (radius={radius0:.2f})')
+        plt.gca().add_patch(circle0)
+        plt.text(center0[0] + radius0, center0[1], f'radius={radius0:.2f}', verticalalignment='center',
+                 color='blue')  # 添加第一组外切圆半径标注
+
+        radius1 = max(np.linalg.norm(point - center1) for point in band[1][90:110])
+        circle1 = Circle(center1, radius1, fill=False, color='blue', linestyle='--',
+                         label=f'Bounding Circle (radius={radius1:.2f})')
+        plt.gca().add_patch(circle1)
+        plt.text(center1[0] + radius1, center1[1], f'radius={radius1:.2f}', verticalalignment='center',
+                 color='blue')  # 添加第一组外切圆半径标注
+
+        radius2 = max(np.linalg.norm(point - center2) for point in band[2][90:110])
+        circle2 = Circle(center2, radius2, fill=False, color='blue', linestyle='--',
+                         label=f'Bounding Circle (radius={radius2:.2f})')
+        plt.gca().add_patch(circle2)
+        plt.text(center2[0] + radius2, center2[1], f'radius={radius2:.2f}', verticalalignment='center',
+                 color='blue')  # 添加第一组外切圆半径标注
+
+        radius3 = max(np.linalg.norm(point - center3) for point in band[3][90:110])
+        circle3 = Circle(center3, radius3, fill=False, color='blue', linestyle='--',
+                         label=f'Bounding Circle (radius={radius3:.2f})')
+        plt.gca().add_patch(circle3)
+        plt.text(center3[0] + radius3, center3[1], f'radius={radius3:.2f}', verticalalignment='center',
+                 color='blue')  # 添加第一组外切圆半径标注
+
+        radius4 = max(np.linalg.norm(point - center4) for point in band[4][90:110])
+        circle4 = Circle(center4, radius4, fill=False, color='blue', linestyle='--',
+                         label=f'Bounding Circle (radius={radius4:.2f})')
+        plt.gca().add_patch(circle4)
+        plt.text(center4[0] + radius4, center4[1], f'radius={radius4:.2f}', verticalalignment='center',
+                 color='blue')  # 添加第一组外切圆半径标注
+
+    # 绘制连线并标注距离
+
+    # 添加图例
+    # plt.legend()
+    plt.legend(bbox_to_anchor=(-0.5, 1), loc='upper left')
+
+    # 设置图形属性
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title('Centers and Bounding Circles')
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.grid(True)
+    # 显示图形
     plt.show()
-    global current_completion_flag
-    current_completion_flag = False
 
+
+def mean_drop():
     return
-
-
-def loop(sn):
-    """循环处理每个样本"""
-    f, sn = auto_input(sn)
-    global current_completion_flag
-    data = f.read()
-    filtered_bytes = filter_ascii(data)  # 去空格加截断标识符
-    bottle = change_format(filtered_bytes)  # 限制位长分隔为bytearray list
-    sec_bottle = final_wash(bottle)  # 倒序清洗、加结束符、格式化为字符串
-
-    item = separate_data()
-    item.load_data(sec_bottle)
-    one = point_grid(item, sn='00')
-    diif_x, diff_y, diff_distance = one.abs_diff()
-    global x_draw
-    global y_draw
-    x_draw.append(one._mean_x)
-    y_draw.append(one._mean_y)
-    # draw(item)
-    current_completion_flag = False
-    pass
-    return
-
 
 class separate_data:
     base_start_num = 0
-    check_num = []
-    check_num2 = []
-    x2 = []
-    y2 = []
-    z2 = []
-    x = []
-    y = []
-    z = []
+    __check_num = []
+    __check_num2 = []
+    __x2 = []
+    __y2 = []
+    __z2 = []
+    __x = []
+    __y = []
+    __z = []
+
+    def __init__(self):
+        self.base_start_num = 0
+        self.__check_num = []
+        self.__check_num2 = []
+        self.__x2 = []
+        self.__y2 = []
+        self.__z2 = []
+        self.__x = []
+        self.__y = []
+        self.__z = []
 
     def make_dimen_right(self):
-        if len(self.x) != len(self.y) and len(self.x) != len(self.z) and len(self.z) != len(self.y):
-            num = min(len(self.x), len(self.y), len(self.z))
+        if len(self.__x) != len(self.__y) and len(self.__x) != len(self.__z) and len(self.__z) != len(self.__y):
+            num = min(len(self.__x), len(self.__y), len(self.__z))
             for i in range(num):
-                self.x2.append(self.x[i])
-                self.y2.append(self.y[i])
-                self.z2.append(self.z[i])
-            self.x = self.x2
-            self.y = self.y2
-            self.z = self.z2
+                self.__x2.append(self.__x[i])
+                self.__y2.append(self.__y[i])
+                self.__z2.append(self.__z[i])
+            self.__x = self.__x2
+            self.__y = self.__y2
+            self.__z = self.__z2
 
     def load_data(self, lists):
         # strlen = len(lists[0])
@@ -217,7 +277,7 @@ class separate_data:
                         num_str = ''.join(str(num) for num in buff)
                         result = int(num_str)
                         buff_mxyz.append(result)
-                        self.check_num2.append(result)
+                        self.__check_num2.append(result)
                         buff = []
                         i = 1
                     elif dealstr[j] == 'x':
@@ -255,7 +315,7 @@ class separate_data:
                         flag = False
                         flag_point = False
                         buff_mxyz.append(result)
-                        self.x2.append(result)
+                        self.__x2.append(result)
                         buff = []
                         i = 2
                     elif dealstr[j] == 'y':
@@ -294,7 +354,7 @@ class separate_data:
                         flag = False
                         flag_point = False
                         buff_mxyz.append(result)
-                        self.y2.append(result)
+                        self.__y2.append(result)
                         buff = []
                         i = 2
                     elif dealstr[j] == 'z':
@@ -341,17 +401,17 @@ class separate_data:
                         flag = False
                         flag_point = False
                         buff_mxyz.append(result)
-                        self.z2.append(result)
+                        self.__z2.append(result)
                         buff = []
                         i = 2
                 if len(buff_mxyz) == 4:
-                    self.check_num.append(buff_mxyz[0])
-                    self.x.append(buff_mxyz[1])
-                    self.y.append(buff_mxyz[2])
-                    self.z.append(buff_mxyz[3])
+                    self.__check_num.append(buff_mxyz[0])
+                    self.__x.append(buff_mxyz[1])
+                    self.__y.append(buff_mxyz[2])
+                    self.__z.append(buff_mxyz[3])
                 else:
                     break
-                    #     self.check_num
+                    #     self.__check_num
         # self.make_dimen_right()
         return
 
@@ -367,29 +427,29 @@ class point_grid:
     _mean_x = 0
     _mean_y = 0
     _mean_z = 0
-    _calcu_sample = 5
+    _calcu_sample = 3
 
     posi_ID = []
     posi_real = []
     posi_calcu_real = []
 
     def __init__(self, group, sn):
-        self._x = group.x
-        self._y = group.y
-        self._z = group.z
-        self._check_num = group.check_num
+        self._x = group._separate_data__x
+        self._y = group._separate_data__y
+        self._z = group._separate_data__z
+        self._check_num = group._separate_data__check_num
         self._total = len(self._check_num)
         self.mean_each()
-        self.posi_ID.append(int(sn[0]))             # sn只是用来计算推算真值坐标
+        self.posi_ID.append(int(sn[0]))  # sn只是用来计算推算真值坐标
         self.posi_ID.append(int(sn[1]))
         self.posi_real.append(self.posi_ID[0] * size_of_each_grid)
         self.posi_real.append(self.posi_ID[1] * size_of_each_grid)
-        self.posi_real_define = [1.2, 1.2]      # 分析单个点时手动设置的该点坐标
+        self.posi_real_define = [1.2, 1.2]  # 分析单个点时手动设置的该点坐标
 
     def mean(self, lst):
         sum = 0
         for i in range(self._calcu_sample):
-            sum = sum + lst[i + 20]         # 丢掉前面20组数据
+            sum = sum + lst[i + 20]  # 丢掉前面20组数据
         return sum / self._calcu_sample
 
         # total = sum(lst)
@@ -432,21 +492,47 @@ class point_grid:
         diff_distance = math.sqrt(diif_x ** 2 + diff_y ** 2)
         return diif_x, diff_y, diff_distance
 
+    def direct_output(self):
+        return
+
+
+class single:
+    def A(self):
+        return ()
+
+
+def loop(sn):
+    """循环处理每个样本"""
+    f, sn = auto_input(sn)
+    global current_completion_flag
+    data = f.read()
+
+    filtered_bytes = filter_ascii(data)  # 去空格加截断标识符
+    bottle = change_format(filtered_bytes)  # 限制位长分隔为bytearray list
+    sec_bottle = final_wash(bottle)  # 倒序清洗、加结束符、格式化为字符串
+
+    item = separate_data()
+    item.load_data(sec_bottle)  # 截断分离check_num xyz
+    # one = point_grid(item, sn='00')
+    # diif_x, diff_y, diff_distance = one.abs_diff()
+    #
+    # global x_draw
+    # global y_draw
+    # x_draw.append(one._mean_x)
+    # y_draw.append(one._mean_y)
+    current_completion_flag = False
+    return item
+
 
 if __name__ == '__main__':
     def main():
-        # with open("./data_of_web/00.DAT", 'rb') as f:  # 单文件处理
-        # for i in range(data_scale[0]*data_scale[1]):
+        # with open("./data_of_web/00.DAT", 'rb') as f:     # 单文件处理
+        # for i in range(data_scale[0]*data_scale[1]):      # 遍历网格点
+        group = []  # 用于接收每组类
         for i in range(5):
             # loop(get_SN())
-            loop(['00', '01', '02', '03', '04'])
-        plt.plot(x_draw, x_draw, 'o', color='blue', label='Points')
-        plt.xlabel('x Axis')
-        plt.ylabel('y Axis')
-        plt.show()
-
-
-            # TODO 输出文件for 遍历到不同的文件中
+            group.append(loop(['00', '01', '02', '03', '04']))
+        draw(group)
 
 
     # for i in range(data_scale[0]*data_scale[1]):
