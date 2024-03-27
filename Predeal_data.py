@@ -7,6 +7,7 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import numpy as np
+import block as bk
 
 # matplotlib.use('TkAgg')
 # from mpl_toolkits.mplot3d import Axes3D
@@ -20,8 +21,8 @@ file_type = ".DAT"  # 批处理的文件后缀名
 size_of_each_grid = 0.4  # 每个方格的边长
 count = -1  # 用于auto_input循环
 
-# path = "./data_of_web/"  # 提供绝对路径的字符串
-path = "./recalibration_anchor/"  # 提供绝对路径的字符串
+path = "./data_of_web/"  # 提供绝对路径的字符串
+# path = "./recalibration_anchor/"  # 提供绝对路径的字符串
 # path = "./only_reopen_anchor/"  # 提供绝对路径的字符串
 # path = "./long_time/"  # 提供绝对路径的字符串
 
@@ -221,6 +222,7 @@ def draw(group):
 def mean_drop():
     return
 
+
 class separate_data:
     base_start_num = 0
     __check_num = []
@@ -232,7 +234,7 @@ class separate_data:
     __y = []
     __z = []
 
-    def __init__(self):
+    def __init__(self, sn):
         self.base_start_num = 0
         self.__check_num = []
         self.__check_num2 = []
@@ -242,6 +244,7 @@ class separate_data:
         self.__x = []
         self.__y = []
         self.__z = []
+        self.__sn = sn
 
     def make_dimen_right(self):
         if len(self.__x) != len(self.__y) and len(self.__x) != len(self.__z) and len(self.__z) != len(self.__y):
@@ -416,91 +419,6 @@ class separate_data:
         return
 
 
-class point_grid:
-    global size_of_each_grid
-    size_of_each_grid
-    _x = []
-    _y = []
-    _z = []
-    _check_num = []
-    _total = 0
-    _mean_x = 0
-    _mean_y = 0
-    _mean_z = 0
-    _calcu_sample = 3
-
-    posi_ID = []
-    posi_real = []
-    posi_calcu_real = []
-
-    def __init__(self, group, sn):
-        self._x = group._separate_data__x
-        self._y = group._separate_data__y
-        self._z = group._separate_data__z
-        self._check_num = group._separate_data__check_num
-        self._total = len(self._check_num)
-        self.mean_each()
-        self.posi_ID.append(int(sn[0]))  # sn只是用来计算推算真值坐标
-        self.posi_ID.append(int(sn[1]))
-        self.posi_real.append(self.posi_ID[0] * size_of_each_grid)
-        self.posi_real.append(self.posi_ID[1] * size_of_each_grid)
-        self.posi_real_define = [1.2, 1.2]  # 分析单个点时手动设置的该点坐标
-
-    def mean(self, lst):
-        sum = 0
-        for i in range(self._calcu_sample):
-            sum = sum + lst[i + 20]  # 丢掉前面20组数据
-        return sum / self._calcu_sample
-
-        # total = sum(lst)
-        # length = len(lst)
-        # if length == 0:
-        #     return 0  # 避免除以零的情况
-        # return total / length
-
-    def mean_each(self):
-        self._mean_x = self.mean(self._x)
-        self._mean_y = self.mean(self._y)
-        self._mean_z = self.mean(self._z)
-
-    def calcu_posi_mean(self):
-        return
-
-    def calcu_posi_real(self):
-        return
-
-    def abs_diff(self):
-        diif_x = self._mean_x - self.posi_real[0]
-        diff_y = self._mean_y - self.posi_real[1]
-        diff_distance = math.sqrt(diif_x ** 2 + diff_y ** 2)
-        return diif_x, diff_y, diff_distance
-
-    def error_range(self):
-        return
-
-    def long_time_diff(self):
-        return
-
-    def api_contour(self):
-        """误差随位置变化的等高线图"""
-
-        return  # posit_ID abs_diff
-
-    def abs_diff_define(self):
-        diif_x = self._mean_x - self.posi_real_define[0]
-        diff_y = self._mean_y - self.posi_real_define[1]
-        diff_distance = math.sqrt(diif_x ** 2 + diff_y ** 2)
-        return diif_x, diff_y, diff_distance
-
-    def direct_output(self):
-        return
-
-
-class single:
-    def A(self):
-        return ()
-
-
 def loop(sn):
     """循环处理每个样本"""
     f, sn = auto_input(sn)
@@ -511,7 +429,7 @@ def loop(sn):
     bottle = change_format(filtered_bytes)  # 限制位长分隔为bytearray list
     sec_bottle = final_wash(bottle)  # 倒序清洗、加结束符、格式化为字符串
 
-    item = separate_data()
+    item = separate_data(sn)
     item.load_data(sec_bottle)  # 截断分离check_num xyz
     # one = point_grid(item, sn='00')
     # diif_x, diff_y, diff_distance = one.abs_diff()
@@ -526,15 +444,15 @@ def loop(sn):
 
 if __name__ == '__main__':
     def main():
+        group = []  # 用于接收每组清洗好的类
         # with open("./data_of_web/00.DAT", 'rb') as f:     # 单文件处理
-        # for i in range(data_scale[0]*data_scale[1]):      # 遍历网格点
-        group = []  # 用于接收每组类
-        for i in range(5):
-            # loop(get_SN())
-            group.append(loop(['00', '01', '02', '03', '04']))
-        draw(group)
 
+        # for i in range(5):                                # 非网格文件清洗
+        #     group.append(loop(['00', '01', '02', '03', '04']))
+        # draw(group)
 
-    # for i in range(data_scale[0]*data_scale[1]):
+        for i in range(data_scale[0]*data_scale[1]):        # 网格点文件遍历清洗
+            group.append(loop(get_SN()))
+        # draw(group)
 
     main()

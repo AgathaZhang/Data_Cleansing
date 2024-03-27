@@ -95,7 +95,7 @@ def draw_block(scale):  # TODO 密化网格 线性插值
                 # pass
                 # Queue.table[n].table_value.append(value_seg_col[n][m])
                 for r in table_queue:
-                    r.load_it(n, m, value_seg_col) # p是队列位置，q是遍历的第二个参数，lst是传入的操作table
+                    r.load_it(n, m, value_seg_col)   # p是队列位置，q是遍历的第二个参数，lst是传入的操作table
                     # if r.table_num == n:
                     #     r.table_value.append(value_seg_col[n][m])
                 # A = table_queue[n]
@@ -165,7 +165,7 @@ def draw_block(scale):  # TODO 密化网格 线性插值
     # plt.xticks(my_x_ticks)
     # plt.yticks(my_y_ticks)
     # surf = ax1.plot_wireframe(X, Y, Z)
-
+    plt.grid(True)
     plt.show()
     return
 

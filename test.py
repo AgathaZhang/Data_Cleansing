@@ -353,86 +353,201 @@ import numpy as np
 #         # TODO 输出文件for 遍历到不同的文件中
 
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+# import numpy as np
+# from matplotlib.patches import Circle
+#
+# # 生成两组随机坐标和一个随机点
+# np.random.seed(0)
+# num_points = 10
+# coordinates1 = np.random.rand(num_points, 2) * 10
+# coordinates2 = np.random.rand(num_points, 2) * 10
+# random_point = np.random.rand(1, 2) * 10
+#
+# # 绘制第一组坐标点
+# plt.scatter(coordinates1[:, 0], coordinates1[:, 1], color='blue', label='Group 1')
+#
+# # 绘制第二组坐标点
+# plt.scatter(coordinates2[:, 0], coordinates2[:, 1], color='red', label='Group 2')
+#
+# # 绘制随机点
+# plt.scatter(random_point[:, 0], random_point[:, 1], color='green', label='Random Point')
+#
+# # 计算并绘制第一组重心
+# center1 = np.mean(coordinates1, axis=0)
+# plt.scatter(center1[0], center1[1], color='blue', marker='x', label='Center of Group 1')
+#
+# # 计算并绘制第二组重心
+# center2 = np.mean(coordinates2, axis=0)
+# plt.scatter(center2[0], center2[1], color='red', marker='x', label='Center of Group 2')
+#
+# # 计算并绘制第一组外切圆
+# radius1 = max(np.linalg.norm(point - center1) for point in coordinates1)
+# circle1 = Circle(center1, radius1, fill=False, color='blue', linestyle='--', label=f'Bounding Circle (radius={radius1:.2f})')
+# plt.gca().add_patch(circle1)
+#
+# # 添加第一组外切圆半径标注
+# plt.text(center1[0] + radius1, center1[1], f'radius={radius1:.2f}', verticalalignment='center', color='blue')
+#
+# # 计算并绘制第二组外切圆
+# radius2 = max(np.linalg.norm(point - center2) for point in coordinates2)
+# circle2 = Circle(center2, radius2, fill=False, color='red', linestyle='--', label=f'Bounding Circle (radius={radius2:.2f})')
+# plt.gca().add_patch(circle2)
+#
+# # 添加第二组外切圆半径标注
+# plt.text(center2[0] + radius2, center2[1], f'radius={radius2:.2f}', verticalalignment='center', color='red')
+#
+# # 绘制连线并标注距离
+# plt.plot([center1[0], random_point[0, 0]], [center1[1], random_point[0, 1]], color='blue', linestyle='--')
+# distance1 = np.linalg.norm(center1 - random_point)
+# plt.text((center1[0] + random_point[0, 0]) / 2, (center1[1] + random_point[0, 1]) / 2, f'distance={distance1:.2f}', color='blue')
+#
+# plt.plot([center2[0], random_point[0, 0]], [center2[1], random_point[0, 1]], color='red', linestyle='--')
+# distance2 = np.linalg.norm(center2 - random_point)
+# plt.text((center2[0] + random_point[0, 0]) / 2, (center2[1] + random_point[0, 1]) / 2, f'distance={distance2:.2f}', color='red')
+#
+# # 添加图例
+# plt.legend()
+#
+# # 设置图形属性
+# plt.xlabel('X')
+# plt.ylabel('Y')
+# plt.title('Random Coordinates, Their Centers and Bounding Circles')
+# plt.gca().set_aspect('equal', adjustable='box')
+# plt.grid(True)
+#
+# # 显示图形
+# plt.show()
+#
+# x = [1, 2, 3]
+# y = [4, 3, 2]
+#
+# # 使用列表推导式转换点的形式
+# points = [[x[i], y[i]] for i in range(len(x))]
+#
+# # 打印转换后的点
+# for i, point in enumerate(points):
+#     print(f'p[{i}] = {point}')
+#
+#     # 计算并绘制第一组重心
+#     # center = np.empty((0, 0))
+#     # for i in range(len(band)):
+#     #     center[i] = np.mean(band[i][20:40], axis=0)
+#     # plt.scatter(center[i][0], center[i][1], color='blue', marker='x', label='Center 1')
+#
+#     # 计算并绘制第二组重心
+
+# class MyClass:
+#     pass
+#
+# obj = MyClass()
+#
+# # 获取对象所属的类
+# obj_class = type(obj)
+# a = obj_class
+# print("Object belongs to class:", obj_class)
+
+# class ClassA:
+#     def __init__(self, value):
+#         self.__private_attr = value
+#
+#
+# # 创建 ClassA 和 ClassB 的实例
+# obj_a = ClassA(100)
+#
+# # 访问 obj_a 的私有属性
+# strobj = type(obj_a)
+# over = str(strobj)
+# a = '_'
+# for i in range(17, 23):
+#     a += over[i]
+# a += "__private_attr"
+#
+# value_a = getattr(obj_a, a)
+# print("ClassA private attribute value:", value_a)
+
+# class MyClass:
+#     class_attr = []
+#
+#     def __init__(self, value):
+#         self.instance_attr = value
+#
+# # 实例化两个对象
+# obj1 = MyClass(1)
+# obj2 = MyClass(2)
+#
+# # 修改obj1的实例属性
+# obj1.instance_attr = 10
+#
+# # 修改obj1的类属性
+# obj1.class_attr.append(100)
+#
+# # 打印obj1的属性
+# print("obj1 instance_attr:", obj1.instance_attr)
+# print("obj1 class_attr:", obj1.class_attr)
+#
+# # 打印obj2的属性
+# print("obj2 instance_attr:", obj2.instance_attr)
+# print("obj2 class_attr:", obj2.class_attr)
+
 import numpy as np
-from matplotlib.patches import Circle
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from scipy.interpolate import griddata
 
-# 生成两组随机坐标和一个随机点
-np.random.seed(0)
-num_points = 10
-coordinates1 = np.random.rand(num_points, 2) * 10
-coordinates2 = np.random.rand(num_points, 2) * 10
-random_point = np.random.rand(1, 2) * 10
+# # 生成随机三维数据
+# np.random.seed(0)
+# num_points = 100
+# x = np.random.normal(size=num_points)
+# y = np.random.normal(size=num_points)
+# z = np.random.normal(size=num_points)
+#
+# # 生成网格点
+# xi = np.linspace(min(x), max(x), 100)
+# yi = np.linspace(min(y), max(y), 100)
+# xi, yi = np.meshgrid(xi, yi)
+#
+# # 进行插值
+# zi = griddata((x, y), z, (xi, yi), method='cubic')
+#
+# # 创建三维图形对象
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+#
+# # 绘制曲面
+# surf = ax.plot_surface(xi, yi, zi, cmap='viridis')
+#
+# # 设置图形属性
+# ax.set_xlabel('X Label')
+# ax.set_ylabel('Y Label')
+# ax.set_zlabel('Z Label')
+# ax.set_title('3D Surface Plot')
+#
+# # 添加色标
+# fig.colorbar(surf)
+#
+# # 显示图形
+# plt.show()
 
-# 绘制第一组坐标点
-plt.scatter(coordinates1[:, 0], coordinates1[:, 1], color='blue', label='Group 1')
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
-# 绘制第二组坐标点
-plt.scatter(coordinates2[:, 0], coordinates2[:, 1], color='red', label='Group 2')
+# 数据
+x = np.random.rand(100)
+y = np.random.rand(100)
+z = np.random.rand(100)
 
-# 绘制随机点
-plt.scatter(random_point[:, 0], random_point[:, 1], color='green', label='Random Point')
+# 绘图
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(x, y, z)
 
-# 计算并绘制第一组重心
-center1 = np.mean(coordinates1, axis=0)
-plt.scatter(center1[0], center1[1], color='blue', marker='x', label='Center of Group 1')
+# 设置坐标轴标签
+ax.set_xlabel('X Label')
+ax.set_ylabel('Y Label')
+ax.set_zlabel('Z Label')
 
-# 计算并绘制第二组重心
-center2 = np.mean(coordinates2, axis=0)
-plt.scatter(center2[0], center2[1], color='red', marker='x', label='Center of Group 2')
-
-# 计算并绘制第一组外切圆
-radius1 = max(np.linalg.norm(point - center1) for point in coordinates1)
-circle1 = Circle(center1, radius1, fill=False, color='blue', linestyle='--', label=f'Bounding Circle (radius={radius1:.2f})')
-plt.gca().add_patch(circle1)
-
-# 添加第一组外切圆半径标注
-plt.text(center1[0] + radius1, center1[1], f'radius={radius1:.2f}', verticalalignment='center', color='blue')
-
-# 计算并绘制第二组外切圆
-radius2 = max(np.linalg.norm(point - center2) for point in coordinates2)
-circle2 = Circle(center2, radius2, fill=False, color='red', linestyle='--', label=f'Bounding Circle (radius={radius2:.2f})')
-plt.gca().add_patch(circle2)
-
-# 添加第二组外切圆半径标注
-plt.text(center2[0] + radius2, center2[1], f'radius={radius2:.2f}', verticalalignment='center', color='red')
-
-# 绘制连线并标注距离
-plt.plot([center1[0], random_point[0, 0]], [center1[1], random_point[0, 1]], color='blue', linestyle='--')
-distance1 = np.linalg.norm(center1 - random_point)
-plt.text((center1[0] + random_point[0, 0]) / 2, (center1[1] + random_point[0, 1]) / 2, f'distance={distance1:.2f}', color='blue')
-
-plt.plot([center2[0], random_point[0, 0]], [center2[1], random_point[0, 1]], color='red', linestyle='--')
-distance2 = np.linalg.norm(center2 - random_point)
-plt.text((center2[0] + random_point[0, 0]) / 2, (center2[1] + random_point[0, 1]) / 2, f'distance={distance2:.2f}', color='red')
-
-# 添加图例
-plt.legend()
-
-# 设置图形属性
-plt.xlabel('X')
-plt.ylabel('Y')
-plt.title('Random Coordinates, Their Centers and Bounding Circles')
-plt.gca().set_aspect('equal', adjustable='box')
-plt.grid(True)
-
-# 显示图形
+# 显示图形，并允许旋转
 plt.show()
-
-x = [1, 2, 3]
-y = [4, 3, 2]
-
-# 使用列表推导式转换点的形式
-points = [[x[i], y[i]] for i in range(len(x))]
-
-# 打印转换后的点
-for i, point in enumerate(points):
-    print(f'p[{i}] = {point}')
-
-    # 计算并绘制第一组重心
-    # center = np.empty((0, 0))
-    # for i in range(len(band)):
-    #     center[i] = np.mean(band[i][20:40], axis=0)
-    # plt.scatter(center[i][0], center[i][1], color='blue', marker='x', label='Center 1')
-
-    # 计算并绘制第二组重心
+pass
