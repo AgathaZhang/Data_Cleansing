@@ -533,21 +533,50 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-# 数据
+# # 数据
+# x = np.random.rand(100)
+# y = np.random.rand(100)
+# z = np.random.rand(100)
+#
+# # 绘图
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# ax.scatter(x, y, z)
+#
+# # 设置坐标轴标签
+# ax.set_xlabel('X Label')
+# ax.set_ylabel('Y Label')
+# ax.set_zlabel('Z Label')
+#
+# # 显示图形，并允许旋转
+# plt.show()
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.animation import FuncAnimation
+
+# 创建数据
 x = np.random.rand(100)
 y = np.random.rand(100)
 z = np.random.rand(100)
 
-# 绘图
+# 创建图形和轴
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.scatter(x, y, z)
+sc = ax.scatter(x, y, z)
 
 # 设置坐标轴标签
 ax.set_xlabel('X Label')
 ax.set_ylabel('Y Label')
 ax.set_zlabel('Z Label')
 
-# 显示图形，并允许旋转
+# 定义动画函数
+def update(frame):
+    ax.view_init(elev=10, azim=frame)
+
+# 创建动画
+ani = FuncAnimation(fig, update, frames=np.arange(0, 360, 1), interval=50)
+
+# 显示动画
 plt.show()
 pass

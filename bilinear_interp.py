@@ -23,12 +23,18 @@ def draw_grid():
     x = []
     y = []
     z = []
+    mean_x = []
+    mean_y = []
+    mean_z = []
     for item in grid:
         z.append(item.diff_distance)
         # x.append(item.posi_real_x)
         # y.append(item.posi_real_y)
-        x.append(item.posi_ID_x)
-        y.append(item.posi_ID_y)
+        x.append(item.posi_real_x)
+        y.append(item.posi_real_y)
+        mean_x.append(item.mean_x)
+        mean_y.append(item.mean_y)
+        mean_z.append(1)
     # # 创建三维图形对象
     # fig = plt.figure()
     # ax = fig.add_subplot(111, projection='3d')
@@ -41,50 +47,54 @@ def draw_grid():
     # ax.set_ylabel('Y Label')
     # ax.set_zlabel('Z Label')
     # ax.set_title('3D Scatter Plot')
-    #
+    # # ax.view_init(elev=30, azim=45)
+    # ax.view_init(elev=30, azim=220)
     # # 显示图形
     # plt.show()
-    # -----------------------------------------------
-    # xi = np.linspace(min(x), max(x), 100)
-    # yi = np.linspace(min(y), max(y), 100)
-    # xi, yi = np.meshgrid(xi, yi)
-    #
-    # # 插值
-    # zi = griddata((x, y), z, (xi, yi), method='cubic')
-    #
-    # # 绘制散点图
-    # plt.scatter(x, y, c=z, cmap='viridis')
-    # plt.colorbar()
-    #
-    # # 显示
-    # plt.show()
-    # -------------------------------------------------
-    # 生成网格点
+    # # ----------------------------------------------- abs_diif 均值和各个点的绝对差
     xi = np.linspace(min(x), max(x), 100)
     yi = np.linspace(min(y), max(y), 100)
     xi, yi = np.meshgrid(xi, yi)
 
-    # 进行插值
+    # 插值
     zi = griddata((x, y), z, (xi, yi), method='cubic')
 
-    # 创建三维图形对象
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    # 绘制散点图
+    plt.scatter(x, y, c=z, cmap='viridis')
+    # plt.scatter(mean_x, mean_y, c=mean_z, alpha=0.07, cmap='inferno')
+    plt.colorbar()
 
-    # 绘制曲面
-    surf = ax.plot_surface(xi, yi, zi, cmap='viridis')
-
-    # 设置图形属性
-    ax.set_xlabel('X Label')
-    ax.set_ylabel('Y Label')
-    ax.set_zlabel('Z Label')
-    ax.set_title('3D Surface Plot')
-
-    # 添加色标
-    fig.colorbar(surf)
-
-    # 显示图形
+    # 显示
     plt.show()
+    # -------------------------------------------------
+    # # 生成网格点
+    # xi = np.linspace(min(x), max(x), 100)
+    # yi = np.linspace(min(y), max(y), 100)
+    # xi, yi = np.meshgrid(xi, yi)
+    #
+    # # 进行插值
+    # zi = griddata((x, y), z, (xi, yi), method='cubic')
+    #
+    # # 创建三维图形对象
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111, projection='3d')
+    #
+    # # 绘制曲面
+    # surf = ax.plot_surface(xi, yi, zi, cmap='viridis')
+    #
+    # # 设置图形属性
+    # ax.set_xlabel('X Label')
+    # ax.set_ylabel('Y Label')
+    # ax.set_zlabel('Z Label')
+    # ax.set_title('3D Surface Plot')
+    # ax.view_init(elev=30, azim=220)
+    #
+    #
+    # # 添加色标
+    # fig.colorbar(surf)
+    #
+    # # 显示图形
+    # plt.show()
     pass
 
     return
@@ -108,8 +118,6 @@ class deal_grid:
     # __posi_ID = []
     # posi_real = []
     # posi_calcu_real = []
-
-
 
     def __init__(self, point):
         # strinit = "_"
@@ -177,8 +185,8 @@ class deal_grid:
         return  # posit_ID abs_diff
 
     def abs_diff_define(self):
-        diif_x = self.mean_x - self.posi_real_define[0]
-        diff_y = self.mean_y - self.posi_real_define[1]
+        diif_x = self.mean_x - self.posi_real_x
+        diff_y = self.mean_y - self.posi_real_y
         diff_distance = math.sqrt(diif_x ** 2 + diff_y ** 2)
         return diif_x, diff_y, diff_distance
 
