@@ -550,33 +550,108 @@ from mpl_toolkits.mplot3d import Axes3D
 #
 # # 显示图形，并允许旋转
 # plt.show()
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.animation import FuncAnimation
+# import numpy as np
+# import matplotlib.pyplot as plt
+# from mpl_toolkits.mplot3d import Axes3D
+# from matplotlib.animation import FuncAnimation
+#
+# # 创建数据
+# x = np.random.rand(100)
+# y = np.random.rand(100)
+# z = np.random.rand(100)
+#
+# # 创建图形和轴
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# sc = ax.scatter(x, y, z)
+#
+# # 设置坐标轴标签
+# ax.set_xlabel('X Label')
+# ax.set_ylabel('Y Label')
+# ax.set_zlabel('Z Label')
+#
+# # 定义动画函数
+# def update(frame):
+#     ax.view_init(elev=10, azim=frame)
+#
+# # 创建动画
+# ani = FuncAnimation(fig, update, frames=np.arange(0, 360, 1), interval=50)
+#
+# # 显示动画
+# plt.show()
 
-# 创建数据
-x = np.random.rand(100)
-y = np.random.rand(100)
-z = np.random.rand(100)
+# def find_surrounding_grid_points(x, y):
+#     """
+#     找到给定坐标所在的四个网格点。
+#
+#     参数:
+#     x (float): x 坐标。
+#     y (float): y 坐标。
+#
+#     返回值:
+#     list: 包含四个网格点坐标的列表。
+#     """
+#     # 向下取整获得网格点的坐标
+#     x1, y1 = int(x), int(y)
+#     x2, y2 = x1 + 1, y1 + 1
+#
+#     # 返回四个网格点的坐标
+#     return [(x1, y1), (x1, y2), (x2, y1), (x2, y2)]
+#
+# # 示例用法
+# x_coord = 2.5
+# y_coord = 3.7
+# grid_points = find_surrounding_grid_points(x_coord, y_coord)
+# print("给定坐标所在的四个网格点：", grid_points)
 
-# 创建图形和轴
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-sc = ax.scatter(x, y, z)
+# def find_closest_grid_points(x, y, grid_points):
+#     """
+#     找到给定坐标所在的四个网格点。
+#
+#     参数:
+#     x (float): x 坐标。
+#     y (float): y 坐标。
+#     grid_points (list of tuple): 多边形网格点的坐标列表。
+#
+#     返回值:
+#     list: 包含四个网格点坐标的列表。
+#     """
+#     closest_points = []
+#
+#     # 遍历网格点，找到距离给定坐标最近的四个网格点
+#     for point in grid_points:
+#         if len(closest_points) < 4:
+#             closest_points.append(point)
+#         else:
+#             distances = [((x - px) ** 2 + (y - py) ** 2) for px, py in closest_points]      # 遍历该点到四个点中每个点的距离 存在distance里
+#             max_distance_index = distances.index(max(distances))                            # 找出距离最大点的索引
+#             distance_to_point = (x - point[0]) ** 2 + (y - point[1]) ** 2                   # 找出第五个点的距离
+#             if distance_to_point < distances[max_distance_index]:                           # 从第五个点开始，该点如果小于距离最大点
+#                 closest_points[max_distance_index] = point                                  # 该点替换为更近的点
+#
+#     return closest_points
+#
+# # 示例用法
+# polygon_grid_points = [(0.3, 0), (0, 1), (1, 1), (1, 0)]
+# x_coord = 0.5
+# y_coord = 0.6
+# closest_points = find_closest_grid_points(x_coord, y_coord, polygon_grid_points)
+# print("给定坐标所在的四个网格点：", closest_points)
+# pass
 
-# 设置坐标轴标签
-ax.set_xlabel('X Label')
-ax.set_ylabel('Y Label')
-ax.set_zlabel('Z Label')
+# my_list = [[1.0, 2], [1.22, 444], [1.22, 444], [1.22, 444]]
+#
+# # 打开一个文本文件，以写入模式打开（'w'）
+# with open('output.txt', 'w') as f:
+#     # 将列表中的每个元素写入到文件中
+#     for item in my_list:
+#         f.write(item + '\n')
+#
+# print("列表已成功写入到文件 output.txt 中。")
 
-# 定义动画函数
-def update(frame):
-    ax.view_init(elev=10, azim=frame)
-
-# 创建动画
-ani = FuncAnimation(fig, update, frames=np.arange(0, 360, 1), interval=50)
-
-# 显示动画
-plt.show()
-pass
+class deal_grid:
+    mean_x = 0
+    mean_y = 0
+    _mean_z = 0
+    _calcu_sample = 10
+    dropdata = 15
