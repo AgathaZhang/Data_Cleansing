@@ -7,6 +7,7 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import numpy as np
+from scipy.spatial import distance_matrix
 import block as bk
 
 # matplotlib.use('TkAgg')
@@ -141,78 +142,118 @@ def draw(group):
         array = np.array(points)
         band.append(array)
 
+    # 绘制坐标点(网格)
+    # for i in range(data_scale[0]*data_scale[1]):
+    #     plt.scatter(band[i][30:50, 0], band[i][30:50, 1], color='blue')
+
     # 绘制坐标点
-    plt.scatter(band[0][90:110, 0], band[0][90:110, 1], color='blue', label='Group 1')
-    plt.scatter(band[1][90:110, 0], band[1][90:110, 1], color='red', label='Group 2')
-    plt.scatter(band[2][90:110, 0], band[2][90:110, 1], color='#58ff70', label='Group 3')
-    plt.scatter(band[3][90:110, 0], band[3][90:110, 1], color='#ff7f60', label='Group 4')
-    plt.scatter(band[4][90:110, 0], band[4][90:110, 1], color='m', label='Group 5')
+    # plt.scatter(band[0][30:50, 0], band[0][30:50, 1], color='blue', label='Group 1')
+    # plt.scatter(band[1][30:50, 0], band[1][30:50, 1], color='red', label='Group 2')
+    # plt.scatter(band[2][30:50, 0], band[2][30:50, 1], color='#58ff70', label='Group 3')
+    # plt.scatter(band[3][30:50, 0], band[3][30:50, 1], color='#ff7f60', label='Group 4')
+    # plt.scatter(band[4][30:50, 0], band[4][30:50, 1], color='m', label='Group 5')
+
+    # 绘制基站点(网格)
+    center = np.empty(64, dtype=object)
+    for i in range(data_scale[0] * data_scale[1]):
+        center[i] = np.mean(band[i][30:50], axis=0)
+        plt.scatter((center[i])[0], (center[i])[1], color='blue', marker='x')
 
     # 绘制基站点
-    plt.scatter(1.2, 1, color='k', label='real_point')
-    if True:
-        center0 = np.mean(band[0][90:110], axis=0)
-        plt.scatter(center0[0], center0[1], color='blue', marker='x', label='Center 0')
+    # plt.scatter(1.2, 1, color='k', label='real_point')    # 单独的真值点坐标
+    # if True:
+    #     center0 = np.mean(band[0][30:50], axis=0)
+    #     plt.scatter(center0[0], center0[1], color='blue', marker='x', label='Center 0')
+    #
+    #     center1 = np.mean(band[1][30:50], axis=0)
+    #     plt.scatter(center1[0], center1[1], color='red', marker='x', label='Center 1')
+    #
+    #     center2 = np.mean(band[2][30:50], axis=0)
+    #     plt.scatter(center2[0], center2[1], color='#58ff70', marker='x', label='Center 2')
+    #
+    #     center3 = np.mean(band[3][30:50], axis=0)
+    #     plt.scatter(center3[0], center3[1], color='#ff7f60', marker='x', label='Center 3')
+    #
+    #     center4 = np.mean(band[4][30:50], axis=0)
+    #     plt.scatter(center4[0], center4[1], color='m', marker='x', label='Center 4')
 
-        center1 = np.mean(band[1][90:110], axis=0)
-        plt.scatter(center1[0], center1[1], color='red', marker='x', label='Center 1')
+    # 计算并绘制第一组外切圆(网格)
+    radius = np.empty(64, dtype=object)
+    circle = np.empty(64, dtype=object)
+    for i in range(data_scale[0] * data_scale[1]):
+        # ----------------------------------------------------------------------------------    # 算平均欧几里得距离
+        # # 使用scipy计算距离矩阵，这个矩阵包含所有点对之间的距离
+        # dist_matrix = distance_matrix(band[i][30:50], band[i][30:50])
+        # # 计算所有不同点对的距离的平均值
+        # # 因为矩阵是对称的，我们只取上三角（不包括对角线），然后计算非零元素的平均值
+        # upper_triangle_indices = np.triu_indices_from(dist_matrix, k=1)
+        # average_distance = np.mean(dist_matrix[upper_triangle_indices])
+        # radius[i] = average_distance
+        # ----------------------------------------------------------------------------------    # 方差距离
+        # 计算x和y坐标的平均值
+        x_mean = np.mean((band[i])[30:50])
+        y_mean = np.mean((band[i])[30:50])
+        # 计算方差和标准差
+        x_variance = np.var((band[i])[30:50, 0])
+        y_variance = np.var((band[i])[30:50, 1])
+        x_std_dev = np.sqrt(x_variance)
+        y_std_dev = np.sqrt(y_variance)
+        # radius[i] = np.sqrt(x_std_dev ** 2 + y_std_dev ** 2)
+        radius[i] = np.sqrt(x_variance ** 2 + y_variance ** 2)
+        # ----------------------------------------------------------------------------------    # 算最大距离
+        # radius[i] = max(np.linalg.norm(point - center[i]) for point in band[i][30:50])
+        # ----------------------------------------------------------------------------------
+        circle[i] = Circle(center[i], radius[i], fill=False, color='red', linestyle='--')
+        plt.gca().add_patch(circle[i])
 
-        center2 = np.mean(band[2][90:110], axis=0)
-        plt.scatter(center2[0], center2[1], color='#58ff70', marker='x', label='Center 2')
 
-        center3 = np.mean(band[3][90:110], axis=0)
-        plt.scatter(center3[0], center3[1], color='#ff7f60', marker='x', label='Center 3')
-
-        center4 = np.mean(band[4][90:110], axis=0)
-        plt.scatter(center4[0], center4[1], color='m', marker='x', label='Center 4')
-
-    if True:
-        # 计算并绘制第一组外切圆
-        radius0 = max(np.linalg.norm(point - center0) for point in band[0][90:110])
-        circle0 = Circle(center0, radius0, fill=False, color='blue', linestyle='--',
-                         label=f'Bounding Circle (radius={radius0:.2f})')
-        plt.gca().add_patch(circle0)
-        plt.text(center0[0] + radius0, center0[1], f'radius={radius0:.2f}', verticalalignment='center',
-                 color='blue')  # 添加第一组外切圆半径标注
-
-        radius1 = max(np.linalg.norm(point - center1) for point in band[1][90:110])
-        circle1 = Circle(center1, radius1, fill=False, color='blue', linestyle='--',
-                         label=f'Bounding Circle (radius={radius1:.2f})')
-        plt.gca().add_patch(circle1)
-        plt.text(center1[0] + radius1, center1[1], f'radius={radius1:.2f}', verticalalignment='center',
-                 color='blue')  # 添加第一组外切圆半径标注
-
-        radius2 = max(np.linalg.norm(point - center2) for point in band[2][90:110])
-        circle2 = Circle(center2, radius2, fill=False, color='blue', linestyle='--',
-                         label=f'Bounding Circle (radius={radius2:.2f})')
-        plt.gca().add_patch(circle2)
-        plt.text(center2[0] + radius2, center2[1], f'radius={radius2:.2f}', verticalalignment='center',
-                 color='blue')  # 添加第一组外切圆半径标注
-
-        radius3 = max(np.linalg.norm(point - center3) for point in band[3][90:110])
-        circle3 = Circle(center3, radius3, fill=False, color='blue', linestyle='--',
-                         label=f'Bounding Circle (radius={radius3:.2f})')
-        plt.gca().add_patch(circle3)
-        plt.text(center3[0] + radius3, center3[1], f'radius={radius3:.2f}', verticalalignment='center',
-                 color='blue')  # 添加第一组外切圆半径标注
-
-        radius4 = max(np.linalg.norm(point - center4) for point in band[4][90:110])
-        circle4 = Circle(center4, radius4, fill=False, color='blue', linestyle='--',
-                         label=f'Bounding Circle (radius={radius4:.2f})')
-        plt.gca().add_patch(circle4)
-        plt.text(center4[0] + radius4, center4[1], f'radius={radius4:.2f}', verticalalignment='center',
-                 color='blue')  # 添加第一组外切圆半径标注
+    # # if True:
+    #     # 计算并绘制第一组外切圆
+    #     radius0 = max(np.linalg.norm(point - center0) for point in band[0][30:50])
+    #     circle0 = Circle(center0, radius0, fill=False, color='blue', linestyle='--',
+    #                      label=f'Bounding Circle (radius={radius0:.2f})')
+    #     plt.gca().add_patch(circle0)
+    #     plt.text(center0[0] + radius0, center0[1], f'radius={radius0:.2f}', verticalalignment='center',
+    #              color='blue')  # 添加第一组外切圆半径标注
+    #
+    #     radius1 = max(np.linalg.norm(point - center1) for point in band[1][30:50])
+    #     circle1 = Circle(center1, radius1, fill=False, color='blue', linestyle='--',
+    #                      label=f'Bounding Circle (radius={radius1:.2f})')
+    #     plt.gca().add_patch(circle1)
+    #     plt.text(center1[0] + radius1, center1[1], f'radius={radius1:.2f}', verticalalignment='center',
+    #              color='blue')  # 添加第一组外切圆半径标注
+    #
+    #     radius2 = max(np.linalg.norm(point - center2) for point in band[2][30:50])
+    #     circle2 = Circle(center2, radius2, fill=False, color='blue', linestyle='--',
+    #                      label=f'Bounding Circle (radius={radius2:.2f})')
+    #     plt.gca().add_patch(circle2)
+    #     plt.text(center2[0] + radius2, center2[1], f'radius={radius2:.2f}', verticalalignment='center',
+    #              color='blue')  # 添加第一组外切圆半径标注
+    #
+    #     radius3 = max(np.linalg.norm(point - center3) for point in band[3][30:50])
+    #     circle3 = Circle(center3, radius3, fill=False, color='blue', linestyle='--',
+    #                      label=f'Bounding Circle (radius={radius3:.2f})')
+    #     plt.gca().add_patch(circle3)
+    #     plt.text(center3[0] + radius3, center3[1], f'radius={radius3:.2f}', verticalalignment='center',
+    #              color='blue')  # 添加第一组外切圆半径标注
+    #
+    #     radius4 = max(np.linalg.norm(point - center4) for point in band[4][30:50])
+    #     circle4 = Circle(center4, radius4, fill=False, color='blue', linestyle='--',
+    #                      label=f'Bounding Circle (radius={radius4:.2f})')
+    #     plt.gca().add_patch(circle4)
+    #     plt.text(center4[0] + radius4, center4[1], f'radius={radius4:.2f}', verticalalignment='center',
+    #              color='blue')  # 添加第一组外切圆半径标注
 
     # 绘制连线并标注距离
 
     # 添加图例
     # plt.legend()
-    plt.legend(bbox_to_anchor=(-0.5, 1), loc='upper left')
+    # plt.legend(bbox_to_anchor=(-0.5, 1), loc='upper left')
 
     # 设置图形属性
     plt.xlabel('X')
     plt.ylabel('Y')
-    plt.title('Centers and Bounding Circles')
+    plt.title('The error depends on the position in the coordinate system\n Variance')
     plt.gca().set_aspect('equal', adjustable='box')
     plt.grid(True)
     # 显示图形
@@ -453,6 +494,6 @@ if __name__ == '__main__':
 
         for i in range(data_scale[0]*data_scale[1]):        # 网格点文件遍历清洗
             group.append(loop(get_SN()))
-        # draw(group)
+        draw(group)
 
     main()

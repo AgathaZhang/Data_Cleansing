@@ -63,6 +63,7 @@ def bilinear_interp(table, x, y):
     plt.show()
     pass
 
+
 def gridTotabel(grid):
 
     table = []
@@ -83,7 +84,6 @@ def gridTotabel(grid):
         table.append(one)
 
     return table
-
 
 
 def draw_grid():
@@ -307,11 +307,11 @@ if __name__ == '__main__':
         # for item in grid:
         #     dicts.append(item.to_dict())
 
-        with open('interp_table.txt', 'w') as f:
-            for detail in grid:
-                # 将对象的属性按照指定格式写入到文件中
-                f.write(f"posi_ID_x:{detail.posi_ID_x}posi_ID_y:{detail.posi_ID_y}mean_x:{detail.mean_x}mean_y:{detail.mean_y}weight_x:{detail.weight_x}weight_y:{detail.weight_y}\n")
-                # json.dump(detail, f)
+        # with open('interp_table.txt', 'w') as f:
+        #     for detail in grid:
+        #         # 将对象的属性按照指定格式写入到文件中
+        #         f.write(f"posi_ID_x:{detail.posi_ID_x}posi_ID_y:{detail.posi_ID_y}mean_x:{detail.mean_x}mean_y:{detail.mean_y}weight_x:{detail.weight_x}weight_y:{detail.weight_y}\n")
+        #         # json.dump(detail, f)
 
         # draw_grid()
         # x = 0.47        # 例子
