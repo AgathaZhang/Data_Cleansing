@@ -182,24 +182,24 @@ def draw(group):
     circle = np.empty(64, dtype=object)
     for i in range(data_scale[0] * data_scale[1]):
         # ----------------------------------------------------------------------------------    # 算平均欧几里得距离
-        # # 使用scipy计算距离矩阵，这个矩阵包含所有点对之间的距离
-        # dist_matrix = distance_matrix(band[i][30:50], band[i][30:50])
-        # # 计算所有不同点对的距离的平均值
-        # # 因为矩阵是对称的，我们只取上三角（不包括对角线），然后计算非零元素的平均值
-        # upper_triangle_indices = np.triu_indices_from(dist_matrix, k=1)
-        # average_distance = np.mean(dist_matrix[upper_triangle_indices])
-        # radius[i] = average_distance
+        # 使用scipy计算距离矩阵，这个矩阵包含所有点对之间的距离
+        dist_matrix = distance_matrix(band[i][30:50], band[i][30:50])
+        # 计算所有不同点对的距离的平均值
+        # 因为矩阵是对称的，我们只取上三角（不包括对角线），然后计算非零元素的平均值
+        upper_triangle_indices = np.triu_indices_from(dist_matrix, k=1)
+        average_distance = np.mean(dist_matrix[upper_triangle_indices])
+        radius[i] = average_distance
         # ----------------------------------------------------------------------------------    # 方差距离
-        # 计算x和y坐标的平均值
-        x_mean = np.mean((band[i])[30:50])
-        y_mean = np.mean((band[i])[30:50])
-        # 计算方差和标准差
-        x_variance = np.var((band[i])[30:50, 0])
-        y_variance = np.var((band[i])[30:50, 1])
-        x_std_dev = np.sqrt(x_variance)
-        y_std_dev = np.sqrt(y_variance)
-        # radius[i] = np.sqrt(x_std_dev ** 2 + y_std_dev ** 2)
-        radius[i] = np.sqrt(x_variance ** 2 + y_variance ** 2)
+        # # 计算x和y坐标的平均值
+        # x_mean = np.mean((band[i])[30:50])
+        # y_mean = np.mean((band[i])[30:50])
+        # # 计算方差和标准差
+        # x_variance = np.var((band[i])[30:50, 0])
+        # y_variance = np.var((band[i])[30:50, 1])
+        # x_std_dev = np.sqrt(x_variance)
+        # y_std_dev = np.sqrt(y_variance)
+        # # radius[i] = np.sqrt(x_std_dev ** 2 + y_std_dev ** 2)
+        # radius[i] = np.sqrt(x_variance ** 2 + y_variance ** 2)
         # ----------------------------------------------------------------------------------    # 算最大距离
         # radius[i] = max(np.linalg.norm(point - center[i]) for point in band[i][30:50])
         # ----------------------------------------------------------------------------------
